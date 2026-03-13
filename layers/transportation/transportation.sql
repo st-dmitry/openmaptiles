@@ -369,7 +369,8 @@ FROM (
          -- etldoc: osm_transportation_name_network  ->  layer_transportation:z14_
          SELECT hl.osm_id,
                 hl.geometry,
-                hl.highway,
+                CASE WHEN hl.highway = 'footway' AND hl.footway = 'crossing'
+                     THEN 'crossing' ELSE hl.highway END AS highway,
                 construction,
                 network,
                 NULL AS railway,

@@ -10310,62 +10310,56 @@
       }
     },
     {
-      "id": "crossing",
+      "id": "crossing-line",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "transportation",
+      "minzoom": 14,
+      "filter": [
+        "all",
+        ["==", "class", "crossing"],
+        ["==", "$type", "LineString"]
+      ],
+      "layout": {
+        "visibility": "visible",
+        "line-cap": "square",
+        "line-join": "miter"
+      },
+      "paint": {
+        "line-color": "#ffffff",
+        "line-width": [
+          "interpolate", ["linear"], ["zoom"],
+          14, 3,
+          17, 8
+        ],
+        "line-dasharray": [1.8, 1.2],
+        "line-opacity": 0.85
+      }
+    },
+    {
+      "id": "crossing-point",
       "type": "circle",
       "source": "openmaptiles",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": [
-        "==",
-        [
-          "get",
-          "class"
-        ],
-        "crossing"
+        "all",
+        ["==", "class", "crossing"],
+        ["==", "$type", "Point"]
       ],
       "layout": {
         "visibility": "visible"
       },
       "paint": {
         "circle-radius": [
-          "interpolate",
-          [
-            "linear"
-          ],
-          [
-            "zoom"
-          ],
-          14,
-          2.5,
-          17,
-          4.5
+          "interpolate", ["linear"], ["zoom"],
+          14, 2,
+          17, 4
         ],
-        "circle-color": [
-          "match",
-          [
-            "get",
-            "subclass"
-          ],
-          "traffic_signals",
-          "#e8a020",
-          "zebra",
-          "#ffffff",
-          "marked",
-          "#ffffff",
-          "#e0e0e0"
-        ],
+        "circle-color": "#ffffff",
         "circle-stroke-width": 1.5,
-        "circle-stroke-color": [
-          "match",
-          [
-            "get",
-            "subclass"
-          ],
-          "traffic_signals",
-          "#c07010",
-          "#888888"
-        ],
-        "circle-opacity": 0.9
+        "circle-stroke-color": "#888888",
+        "circle-opacity": 0.85
       }
     },
     {
