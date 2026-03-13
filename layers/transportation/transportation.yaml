@@ -97,6 +97,8 @@ layer:
           __AND__:
             highway: construction
             construction: raceway
+        crossing:
+          highway: ['crossing']
     subclass:
       description: |
           Distinguish more specific classes of railway and path:
@@ -122,6 +124,11 @@ layer:
       - corridor
       - platform
       - ferry (DEPRECATED - use class)
+      - crossing
+      - zebra
+      - traffic_signals
+      - marked
+      - uncontrolled
     network:
       description: |
           The network type derived mainly from [`network`](http://wiki.openstreetmap.org/wiki/Key:network) tag of the road.

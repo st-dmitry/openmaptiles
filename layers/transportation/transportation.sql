@@ -1114,6 +1114,45 @@ FROM (
                  man_made IN ('bridge', 'pier')
                  OR (is_area AND COALESCE(layer, 0) >= 0)
              )
+         UNION ALL
+
+         -- etldoc: osm_highway_point -> layer_transportation:z14_
+         -- Pedestrian crossings as point features (highway=crossing nodes)
+         -- NOTE: crossing tag value (zebra, traffic_signals, etc.) is passed via
+         -- the `railway` alias so the outer CASE picks it up as `subclass`.
+         SELECT osm_id,
+                geometry,
+                highway,
+                NULL                        AS construction,
+                NULL                        AS network,
+                NULLIF(crossing, '')        AS railway,
+                NULL                        AS aerialway,
+                NULL                        AS shipway,
+                NULL                        AS public_transport,
+                NULL                        AS service,
+                NULL::text                  AS access,
+                NULL::boolean               AS toll,
+                NULL::boolean               AS is_bridge,
+                NULL::boolean               AS is_tunnel,
+                NULL::boolean               AS is_ford,
+                NULL::boolean               AS expressway,
+                NULL::boolean               AS is_ramp,
+                NULL::int                   AS is_oneway,
+                NULL                        AS man_made,
+                layer,
+                level,
+                NULL::boolean               AS indoor,
+                NULL                        AS bicycle,
+                NULL                        AS foot,
+                NULL                        AS horse,
+                NULL                        AS mtb_scale,
+                NULL                        AS operator,
+                NULL                        AS informal,
+                NULL                        AS surface,
+                z_order
+         FROM osm_highway_point
+         WHERE zoom_level >= 14
+           AND highway = 'crossing'
      ) AS zoom_levels
 WHERE geometry && bbox
 ORDER BY z_order ASC;

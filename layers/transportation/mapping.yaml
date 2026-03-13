@@ -261,6 +261,9 @@ tables:
     - *informal
     - *surface
     - *expressway
+    - name: footway
+      key: footway
+      type: string
     mapping:
       highway:
       - motorway
@@ -455,6 +458,15 @@ tables:
     - name: highway
       key: highway
       type: string
+    - name: crossing
+      key: crossing
+      type: string
+    - name: crossing_markings
+      key: crossing:markings
+      type: string
+    - name: tactile_paving
+      key: tactile_paving
+      type: bool
     - name: z_order
       type: wayzorder
     - *layer
@@ -470,6 +482,7 @@ tables:
     mapping:
       highway:
       - motorway_junction
+      - crossing
 
 # TODO: Future table for joining networks
 # etldoc: imposm3 -> osm_route_member
