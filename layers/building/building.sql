@@ -4,6 +4,15 @@
 CREATE INDEX IF NOT EXISTS osm_building_relation_building_idx ON osm_building_relation (building) WHERE building = '' AND ST_GeometryType(geometry) = 'ST_Polygon';
 CREATE INDEX IF NOT EXISTS osm_building_relation_member_idx ON osm_building_relation (member) WHERE role = 'outline';
 
+-- Building corner rounding radius in meters (0 = no rounding).
+-- Controlled via app.building_corner_radius PostgreSQL GUC (set from .env via Makefile).
+CREATE OR REPLACE FUNCTION building_corner_radius() RETURNS float AS $$
+  SELECT COALESCE(
+    NULLIF(current_setting('app.building_corner_radius', true), '')::float,
+    4.0
+  )
+$$ LANGUAGE SQL STABLE;
+
 CREATE OR REPLACE VIEW osm_all_buildings AS
 (
 SELECT
@@ -17,6 +26,9 @@ SELECT
     COALESCE(CleanNumeric(min_level), CleanNumeric(buildingmin_level)) AS min_level,
     nullif(material, '') AS material,
     nullif(colour, '') AS colour,
+    nullif(roof_colour, '') AS roof_colour,
+    nullif(roof_material, '') AS roof_material,
+    nullif(roof_shape, '') AS roof_shape,
     FALSE AS hide_3d
 FROM osm_building_relation
 WHERE building = ''
@@ -34,6 +46,9 @@ SELECT
     COALESCE(CleanNumeric(obp.min_level), CleanNumeric(obp.buildingmin_level)) AS min_level,
     nullif(obp.material, '') AS material,
     nullif(obp.colour, '') AS colour,
+    nullif(obp.roof_colour, '') AS roof_colour,
+    nullif(obp.roof_material, '') AS roof_material,
+    nullif(obp.roof_shape, '') AS roof_shape,
     obr.role IS NOT NULL AS hide_3d
 FROM osm_building_polygon obp
          LEFT JOIN osm_building_relation obr ON
@@ -51,6 +66,10 @@ CREATE OR REPLACE FUNCTION layer_building(bbox geometry, zoom_level int)
                 render_height     int,
                 render_min_height int,
                 colour            text,
+                roof_colour       text,
+                roof_material     text,
+                roof_shape        text,
+                material          text,
                 hide_3d           boolean
             )
 AS
@@ -79,6 +98,25 @@ SELECT geometry,
                             WHEN 'sandstone' THEN '#b4a995' -- same as stone
                             WHEN 'clay' THEN '#9d8b75' -- same as mud
            END) AS colour,
+       COALESCE(roof_colour, CASE roof_material
+                                 WHEN 'cement_block' THEN '#6a7880'
+                                 WHEN 'brick' THEN '#bd8161'
+                                 WHEN 'plaster' THEN '#dadbdb'
+                                 WHEN 'wood' THEN '#d48741'
+                                 WHEN 'concrete' THEN '#d3c2b0'
+                                 WHEN 'metal' THEN '#b7b1a6'
+                                 WHEN 'stone' THEN '#b4a995'
+                                 WHEN 'mud' THEN '#9d8b75'
+                                 WHEN 'steel' THEN '#b7b1a6'
+                                 WHEN 'glass' THEN '#5a81a0'
+                                 WHEN 'tin' THEN '#b7b1a6'
+                                 WHEN 'timber_framing' THEN '#b3b0a9'
+                                 WHEN 'sandstone' THEN '#b4a995'
+                                 WHEN 'clay' THEN '#9d8b75'
+           END) AS roof_colour,
+       roof_material,
+       roof_shape,
+       material,
        CASE WHEN hide_3d THEN TRUE END AS hide_3d
 FROM (
          SELECT
@@ -89,6 +127,9 @@ FROM (
              NULL::int AS render_min_height,
              NULL::text AS material,
              NULL::text AS colour,
+             NULL::text AS roof_colour,
+             NULL::text AS roof_material,
+             NULL::text AS roof_shape,
              FALSE AS hide_3d
          FROM osm_building_block_gen_z13
          WHERE zoom_level = 13
@@ -97,11 +138,20 @@ FROM (
          SELECT
                                   -- etldoc: osm_building_polygon -> layer_building:z14_
              DISTINCT ON (osm_id) osm_id,
-                                  geometry,
+                                  CASE WHEN building_corner_radius() > 0
+                                      THEN ST_Buffer(
+                                          ST_Buffer(geometry, -building_corner_radius(), 'join=mitre'),
+                                          building_corner_radius(), 'join=round quad_segs=4'
+                                      )
+                                      ELSE geometry
+                                  END AS geometry,
                                   ceil(COALESCE(height, levels * 3.66, 5))::int AS render_height,
                                   floor(COALESCE(min_height, min_level * 3.66, 0))::int AS render_min_height,
                                   material,
                                   colour,
+                                  roof_colour,
+                                  roof_material,
+                                  roof_shape,
                                   hide_3d
          FROM osm_all_buildings
          WHERE (levels IS NULL OR levels < 1000)

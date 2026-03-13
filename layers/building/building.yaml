@@ -9,14 +9,22 @@ layer:
     key_field: osm_id
     key_field_as_attribute: no
     srid: 900913
-    query: (SELECT osm_id, geometry, render_height, render_min_height, colour, hide_3d FROM layer_building(!bbox!, z(!scale_denominator!))) AS t
+    query: (SELECT osm_id, geometry, render_height, render_min_height, colour, roof_colour, roof_material, roof_shape, material, hide_3d FROM layer_building(!bbox!, z(!scale_denominator!))) AS t
   fields:
     render_height: |
         An approximated height from levels and height of the building or building:part.
     render_min_height: |
         An approximated height from minimum levels or minimum height of the bottom of the building or building:part.
     colour: |
-        Colour
+        Colour of the building façade. Either from the `building:colour` OSM tag or derived from `building:material`.
+    roof_colour: |
+        Colour of the building roof. Either from the `roof:colour` OSM tag or derived from `roof:material`.
+    roof_material: |
+        Roof material from the `roof:material` OSM tag (e.g. tiles, metal, slate, concrete).
+    roof_shape: |
+        Roof shape from the `roof:shape` OSM tag (e.g. flat, gabled, hipped, pyramidal, dome).
+    material: |
+        Wall material from the `building:material` OSM tag (e.g. brick, concrete, wood, glass).
     hide_3d: |
         If True, building (part) should not be rendered in 3D. Currently, [building outlines](https://wiki.openstreetmap.org/wiki/Simple_3D_buildings) are marked as hide_3d.
 schema:

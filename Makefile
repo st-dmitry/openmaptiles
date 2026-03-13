@@ -79,6 +79,7 @@ PGPORT := $(or $(PGPORT),$(shell (. .env; echo $${PGPORT})),$(POSTGRES_PORT),$(s
 PGDATABASE := $(or $(PGDATABASE),$(shell (. .env; echo $${PGDATABASE})),$(POSTGRES_DB),$(shell (. .env; echo $${POSTGRES_DB})),postgres)
 PGUSER := $(or $(PGUSER),$(shell (. .env; echo $${PGUSER})),$(POSTGRES_USER),$(shell (. .env; echo $${POSTGRES_USER})),postgres)
 PGPASSWORD := $(or $(PGPASSWORD),$(shell (. .env; echo $${PGPASSWORD})),$(POSTGRES_PASSWORD),$(shell (. .env; echo $${POSTGRES_PASSWORD})),postgres)
+BUILDING_CORNER_RADIUS := $(or $(BUILDING_CORNER_RADIUS),$(shell (. .env; echo $${BUILDING_CORNER_RADIUS})),1.5)
 
 #
 # Determine area to work on
@@ -301,9 +302,10 @@ build-sprite: init-dirs
 
 .PHONY: build-style
 build-style: init-dirs
-	$(DOCKER_COMPOSE) run $(DC_OPTS) openmaptiles-tools bash -c 'style-tools recompose $(TILESET_FILE) $(STYLE_FILE) \
-		$(STYLE_HEADER_FILE) && \
-		spreet /style/icons build/style/sprite && spreet --retina /style/icons build/style/sprite@2x'
+	@mkdir -p build/style
+	cp style/style.json $(STYLE_FILE)
+	$(DOCKER_COMPOSE) run $(DC_OPTS) openmaptiles-tools bash -c \
+		'spreet /style/icons build/style/sprite && spreet --retina /style/icons build/style/sprite@2x'
 
 .PHONY: download-fonts
 download-fonts:
@@ -451,6 +453,8 @@ import-data: start-db
 
 .PHONY: import-sql
 import-sql: all start-db-nowait
+	$(DOCKER_COMPOSE) run $(DC_OPTS) openmaptiles-tools sh -c \
+		'pgwait && psql.sh -v ON_ERROR_STOP=1 -c "ALTER DATABASE $$PGDATABASE SET app.building_corner_radius TO ''$(BUILDING_CORNER_RADIUS)''"'
 	$(DOCKER_COMPOSE) run $(DC_OPTS) openmaptiles-tools sh -c 'pgwait && import-sql' | \
     	awk -v s=": WARNING:" '1{print; fflush()} $$0~s{print "\n*** WARNING detected, aborting"; exit(1)}' | \
     	awk '1{print; fflush()} $$0~".*ERROR" {txt=$$0} END{ if(txt){print "\n*** ERROR detected, aborting:"; print txt; exit(1)} }'

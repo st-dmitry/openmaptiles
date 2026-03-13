@@ -21,6 +21,15 @@ tables:
     - name: colour
       key: building:colour
       type: string
+    - name: roof_colour
+      key: roof:colour
+      type: string
+    - name: roof_material
+      key: roof:material
+      type: string
+    - name: roof_shape
+      key: roof:shape
+      type: string
     - name: building
       key: building
       type: string
@@ -88,6 +97,15 @@ tables:
       type: string
     - name: colour
       key: building:colour
+      type: string
+    - name: roof_colour
+      key: roof:colour
+      type: string
+    - name: roof_material
+      key: roof:material
+      type: string
+    - name: roof_shape
+      key: roof:shape
       type: string
     - name: buildingpart
       key: building:part
