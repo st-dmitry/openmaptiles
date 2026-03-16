@@ -12,7 +12,7 @@
   "sources": {
     "openmaptiles": {
       "type": "vector",
-      "url": "mbtiles:///data/tiles.mbtiles"
+      "url": "https://omt.launchoptions.by/data/openmaptiles.json"
     },
     "natural_earth_shaded_relief": {
       "maxzoom": 6,
@@ -10271,11 +10271,24 @@
       "paint": {
         "fill-color": [
           "coalesce",
+          ["get", "colour"],
           [
-            "get",
-            "colour"
-          ],
-          "#D6D7D3"
+            "match",
+            ["get", "type"],
+            ["residential", "apartments", "house", "detached", "semidetached_house", "terrace", "dormitory"],
+            "#e2d6c6",
+            ["commercial", "retail", "office", "supermarket", "kiosk"],
+            "#c8d4de",
+            ["industrial", "warehouse", "manufacture"],
+            "#d8ccc8",
+            ["church", "cathedral", "chapel", "mosque", "synagogue", "temple", "shrine"],
+            "#e8dfc0",
+            ["public", "civic", "government", "school", "university", "college", "hospital", "kindergarten"],
+            "#cdd8cc",
+            ["garage", "garages", "shed", "carport", "parking"],
+            "#c8c8c6",
+            "#D6D7D3"
+          ]
         ],
         "fill-outline-color": "#C4C7C9"
       }
@@ -10292,11 +10305,24 @@
       "paint": {
         "fill-extrusion-color": [
           "coalesce",
+          ["get", "colour"],
           [
-            "get",
-            "colour"
-          ],
-          "#D6D7D3"
+            "match",
+            ["get", "type"],
+            ["residential", "apartments", "house", "detached", "semidetached_house", "terrace", "dormitory"],
+            "#e2d6c6",
+            ["commercial", "retail", "office", "supermarket", "kiosk"],
+            "#c8d4de",
+            ["industrial", "warehouse", "manufacture"],
+            "#d8ccc8",
+            ["church", "cathedral", "chapel", "mosque", "synagogue", "temple", "shrine"],
+            "#e8dfc0",
+            ["public", "civic", "government", "school", "university", "college", "hospital", "kindergarten"],
+            "#cdd8cc",
+            ["garage", "garages", "shed", "carport", "parking"],
+            "#c8c8c6",
+            "#D6D7D3"
+          ]
         ],
         "fill-extrusion-height": [
           "get",
@@ -10317,8 +10343,16 @@
       "minzoom": 14,
       "filter": [
         "all",
-        ["==", "class", "crossing"],
-        ["==", "$type", "LineString"]
+        [
+          "==",
+          "class",
+          "crossing"
+        ],
+        [
+          "==",
+          "$type",
+          "LineString"
+        ]
       ],
       "layout": {
         "visibility": "visible",
@@ -10328,11 +10362,22 @@
       "paint": {
         "line-color": "#ffffff",
         "line-width": [
-          "interpolate", ["linear"], ["zoom"],
-          14, 3,
-          17, 8
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          14,
+          3,
+          17,
+          8
         ],
-        "line-dasharray": [1.8, 1.2],
+        "line-dasharray": [
+          1.8,
+          1.2
+        ],
         "line-opacity": 0.85
       }
     },
@@ -10344,17 +10389,33 @@
       "minzoom": 14,
       "filter": [
         "all",
-        ["==", "class", "crossing"],
-        ["==", "$type", "Point"]
+        [
+          "==",
+          "class",
+          "crossing"
+        ],
+        [
+          "==",
+          "$type",
+          "Point"
+        ]
       ],
       "layout": {
         "visibility": "visible"
       },
       "paint": {
         "circle-radius": [
-          "interpolate", ["linear"], ["zoom"],
-          14, 2,
-          17, 4
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          14,
+          2,
+          17,
+          4
         ],
         "circle-color": "#ffffff",
         "circle-stroke-width": 1.5,

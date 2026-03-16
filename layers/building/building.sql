@@ -29,6 +29,8 @@ SELECT
     nullif(roof_colour, '') AS roof_colour,
     nullif(roof_material, '') AS roof_material,
     nullif(roof_shape, '') AS roof_shape,
+    nullif(buildingpart, '') AS buildingpart,
+    NULL::text AS type,
     FALSE AS hide_3d
 FROM osm_building_relation
 WHERE building = ''
@@ -49,6 +51,8 @@ SELECT
     nullif(obp.roof_colour, '') AS roof_colour,
     nullif(obp.roof_material, '') AS roof_material,
     nullif(obp.roof_shape, '') AS roof_shape,
+    nullif(obp.buildingpart, '') AS buildingpart,
+    nullif(obp.building, '') AS type,
     obr.role IS NOT NULL AS hide_3d
 FROM osm_building_polygon obp
          LEFT JOIN osm_building_relation obr ON
@@ -70,6 +74,7 @@ CREATE OR REPLACE FUNCTION layer_building(bbox geometry, zoom_level int)
                 roof_material     text,
                 roof_shape        text,
                 material          text,
+                type              text,
                 hide_3d           boolean
             )
 AS
@@ -117,6 +122,7 @@ SELECT geometry,
        roof_material,
        roof_shape,
        material,
+       CASE WHEN type = 'yes' THEN NULL ELSE type END AS type,
        CASE WHEN hide_3d THEN TRUE END AS hide_3d
 FROM (
          SELECT
@@ -130,6 +136,7 @@ FROM (
              NULL::text AS roof_colour,
              NULL::text AS roof_material,
              NULL::text AS roof_shape,
+             NULL::text AS type,
              FALSE AS hide_3d
          FROM osm_building_block_gen_z13
          WHERE zoom_level = 13
@@ -152,6 +159,7 @@ FROM (
                                   roof_colour,
                                   roof_material,
                                   roof_shape,
+                                  COALESCE(buildingpart, type) AS type,
                                   hide_3d
          FROM osm_all_buildings
          WHERE (levels IS NULL OR levels < 1000)
