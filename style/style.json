@@ -12,7 +12,7 @@
   "sources": {
     "openmaptiles": {
       "type": "vector",
-      "url": "https://omt.launchoptions.by/data/openmaptiles.json"
+      "url": "mbtiles://{openmaptiles}"
     },
     "natural_earth_shaded_relief": {
       "maxzoom": 6,
@@ -3147,7 +3147,7 @@
       "url": "https://ninaioseliani.github.io/map-sprites/sprites/nav"
     }
   ],
-  "glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
+  "glyphs": "{fontstack}/{range}.pbf",
   "layers": [
     {
       "id": "background",
